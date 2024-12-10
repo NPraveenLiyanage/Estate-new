@@ -5,6 +5,7 @@ import userRouter from "./routes/user.route.js"
 import authRouter from "./routes/auth.route.js"
 import listingRouter from "./routes/listing.route.js"
 import cookieParser from "cookie-parser";
+import path from 'path';
 dotenv.config();
 
 mongoose.connect(process.env.mongoDB).then(() => {
@@ -12,6 +13,8 @@ mongoose.connect(process.env.mongoDB).then(() => {
 }).catch((err) => {
     console.log(err);
 });
+
+const __dirname = path.resolve();
 
 const app = express();
 app.use(express.json());
@@ -26,6 +29,12 @@ app.listen (3000, () => {
 app.use("/backend/user", userRouter);
 app.use("/backend/auth", authRouter);
 app.use("/backend/listing", listingRouter);
+
+app.use(express.static(path.join(__dirname,'/frontend/dist')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client','dist','index.html'));
+})
 
 app.use((err, req, res, next) => {//middleware error handling
     const statusCode = err.statusCode || 500;
